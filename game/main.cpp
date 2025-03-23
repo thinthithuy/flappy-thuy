@@ -1,19 +1,33 @@
 #include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <vector>
+#include <cstdlib> // Cho rand()
 
 using namespace std;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const char* WINDOW_TITLE = "mygame";
+const char* WINDOW_TITLE = "flappy thuy";
+
+const int PIPE_WIDTH = 80;
+const int PIPE_GAP = 150;
+const int PIPE_SPEED = 4;
+
+// Cấu trúc lưu thông tin ống nước
+struct Pipe {
+    int x, height;
+};
+
+// Danh sách ống nước
+vector<Pipe> pipes;
 
 void logErrorAndExit(const char* msg, const char* error)
 {
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "%s: %s", msg, error);
     SDL_Quit();
 }
-//ngusidandon
+
 SDL_Window* initSDL(int SCREEN_WIDTH, int SCREEN_HEIGHT, const char* WINDOW_TITLE)
 {
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -42,7 +56,6 @@ SDL_Renderer* createRenderer(SDL_Window* window)
 void quitSDL (SDL_Window* window, SDL_Renderer* renderer)
 {
     IMG_Quit();
-
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -61,24 +74,65 @@ void waitUntilKeyPressed()
 
 void renderTexture(SDL_Texture *texture, int x, int y, SDL_Renderer* renderer)
 {
-	SDL_Rect dest;
-
-	dest.x = x;
-	dest.y = y;
-	SDL_QueryTexture(texture, NULL, NULL, &dest.w, &dest.h);
-
-	SDL_RenderCopy(renderer, texture, NULL, &dest);
+    SDL_Rect dest;
+    dest.x = x;
+    dest.y = y;
+    SDL_QueryTexture(texture, NULL, NULL, &dest.w, &dest.h);
+    SDL_RenderCopy(renderer, texture, NULL, &dest);
 }
 
 SDL_Texture *loadTexture(const char *filename, SDL_Renderer* renderer)
 {
-	SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s", filename);
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Loading %s", filename);
 
-	SDL_Texture *texture = IMG_LoadTexture(renderer, filename);
-	if (texture == NULL)
+    SDL_Texture *texture = IMG_LoadTexture(renderer, filename);
+    if (texture == NULL)
         SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "Load texture %s", IMG_GetError());
 
-	return texture;
+    return texture;
+}
+
+// Hàm vẽ ống nước bằng hình chữ nhật màu xanh lá cây
+void drawPipe(int x, int height, SDL_Renderer* renderer) {
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Màu xanh lá cây
+
+    // Cột trên
+    SDL_Rect topPipe = {x, 0, PIPE_WIDTH, height};
+    SDL_RenderFillRect(renderer, &topPipe);
+
+    // Cột dưới
+    SDL_Rect bottomPipe = {x, height + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT - height - PIPE_GAP};
+    SDL_RenderFillRect(renderer, &bottomPipe);
+}
+
+// Thêm ống nước mới
+void addPipe() {
+    int height = rand() % (SCREEN_HEIGHT - PIPE_GAP - 100) + 50;
+    pipes.push_back({SCREEN_WIDTH, height});
+}
+
+// Cập nhật vị trí của ống nước
+void updatePipes() {
+    for (auto &pipe : pipes) {
+        pipe.x -= PIPE_SPEED; // Di chuyển sang trái
+    }
+
+    // Xóa ống nước khi nó ra khỏi màn hình
+    if (!pipes.empty() && pipes[0].x < -PIPE_WIDTH) {
+        pipes.erase(pipes.begin());
+    }
+
+    // Thêm ống mới nếu cần
+    if (pipes.empty() || pipes.back().x < SCREEN_WIDTH - 250) {
+        addPipe();
+    }
+}
+
+// Vẽ tất cả ống nước lên màn hình
+void renderPipes(SDL_Renderer* renderer) {
+    for (auto &pipe : pipes) {
+        drawPipe(pipe.x, pipe.height, renderer);
+    }
 }
 
 int main(int argc, char* argv[])
@@ -87,16 +141,37 @@ int main(int argc, char* argv[])
     SDL_Renderer* renderer = createRenderer(window);
 
     SDL_Texture* background = loadTexture("backgr.jpg", renderer);
-    SDL_RenderCopy( renderer, background, NULL, NULL);
 
+    // Thêm ống nước ban đầu
+    addPipe();
 
-    SDL_RenderPresent( renderer );
-    waitUntilKeyPressed();
+    bool running = true;
+    SDL_Event event;
 
-    SDL_DestroyTexture( background );
-    background = NULL;
+    while (running) {
+        // Xử lý sự kiện
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                running = false;
+            }
+        }
 
+        // Cập nhật ống nước
+        updatePipes();
+
+        // Vẽ màn hình nền
+        SDL_RenderCopy(renderer, background, NULL, NULL);
+
+        // Vẽ ống nước
+        renderPipes(renderer);
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(20);
+    }
+
+    SDL_DestroyTexture(background);
     quitSDL(window, renderer);
 
     return 0;
 }
+//hihi
