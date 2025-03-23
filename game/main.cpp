@@ -12,7 +12,7 @@ const char* WINDOW_TITLE = "flappy thuy";
 
 const int PIPE_WIDTH = 80;
 const int PIPE_GAP = 150;
-const int PIPE_SPEED = 4;
+const int PIPE_SPEED = 3;
 
 // Cấu trúc lưu thông tin ống nước
 struct Pipe {
@@ -91,18 +91,17 @@ SDL_Texture *loadTexture(const char *filename, SDL_Renderer* renderer)
 
     return texture;
 }
+SDL_Texture* pipeTexture = nullptr;
 
-// Hàm vẽ ống nước bằng hình chữ nhật màu xanh lá cây
 void drawPipe(int x, int height, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Màu xanh lá cây
-
-    // Cột trên
+    // Cột trên (lộn ngược)
     SDL_Rect topPipe = {x, 0, PIPE_WIDTH, height};
-    SDL_RenderFillRect(renderer, &topPipe);
+    SDL_Rect srcRect = {0, 0, 80, 400}; // Điều chỉnh theo ảnh thực tế
+    SDL_RenderCopyEx(renderer, pipeTexture, &srcRect, &topPipe, 0, NULL, SDL_FLIP_VERTICAL);
 
     // Cột dưới
     SDL_Rect bottomPipe = {x, height + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT - height - PIPE_GAP};
-    SDL_RenderFillRect(renderer, &bottomPipe);
+    SDL_RenderCopy(renderer, pipeTexture, &srcRect, &bottomPipe);
 }
 
 // Thêm ống nước mới
@@ -112,28 +111,87 @@ void addPipe() {
 }
 
 // Cập nhật vị trí của ống nước
-void updatePipes() {
-    for (auto &pipe : pipes) {
+void updatePipes()
+{
+    for (auto &pipe : pipes)
+    {
         pipe.x -= PIPE_SPEED; // Di chuyển sang trái
     }
 
     // Xóa ống nước khi nó ra khỏi màn hình
-    if (!pipes.empty() && pipes[0].x < -PIPE_WIDTH) {
+    if (!pipes.empty() && pipes[0].x < -PIPE_WIDTH)
+    {
         pipes.erase(pipes.begin());
     }
 
     // Thêm ống mới nếu cần
-    if (pipes.empty() || pipes.back().x < SCREEN_WIDTH - 250) {
+    if (pipes.empty() || pipes.back().x < SCREEN_WIDTH - 250)
+    {
         addPipe();
     }
 }
 
 // Vẽ tất cả ống nước lên màn hình
-void renderPipes(SDL_Renderer* renderer) {
-    for (auto &pipe : pipes) {
+void renderPipes(SDL_Renderer* renderer)
+{
+    for (auto &pipe : pipes)
+    {
         drawPipe(pipe.x, pipe.height, renderer);
     }
 }
+
+struct Bird {
+    float x, y;       // Vị trí của chim
+    float velocity;   // Vận tốc rơi
+    float gravity;    // Trọng lực
+};
+
+SDL_Texture* birdTexture = nullptr;
+Bird bird = {100, SCREEN_HEIGHT / 2, 0, 0.5f}; // Vị trí ban đầu của chim
+
+void drawBird(SDL_Renderer* renderer) {
+    SDL_Rect dest = { (int)bird.x, (int)bird.y, 50, 50 }; // Kích thước chim
+    SDL_RenderCopy(renderer, birdTexture, NULL, &dest);
+}
+
+void updateBird() {
+    bird.velocity += bird.gravity;  // Tăng tốc rơi
+    bird.y += bird.velocity;        // Cập nhật vị trí chim
+
+    // Giới hạn chim trong màn hình
+    if (bird.y < 0) bird.y = 0;
+    if (bird.y > SCREEN_HEIGHT - 50) bird.y = SCREEN_HEIGHT - 50;
+}
+
+bool checkCollision(const Bird& bird, const Pipe& pipe) {
+    SDL_Rect birdRect = {(int)bird.x, (int)bird.y, 50, 50}; // Hình chữ nhật của chim
+    SDL_Rect topPipeRect = {pipe.x, 0, PIPE_WIDTH, pipe.height}; // Ống trên
+    SDL_Rect bottomPipeRect = {pipe.x, pipe.height + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT - pipe.height - PIPE_GAP}; // Ống dưới
+
+    // Kiểm tra va chạm với ống trên
+    if (SDL_HasIntersection(&birdRect, &topPipeRect)) {
+        return true;
+    }
+
+    // Kiểm tra va chạm với ống dưới
+    if (SDL_HasIntersection(&birdRect, &bottomPipeRect)) {
+        return true;
+    }
+
+    // Kiểm tra nếu chim chạm đất
+    if (bird.y >= SCREEN_HEIGHT - 50) { // 50 là chiều cao chim
+        return true;
+    }
+
+    return false;
+}
+
+SDL_Texture* gameOverTexture = nullptr;
+void drawGameOver(SDL_Renderer* renderer) {
+    SDL_Rect dest = { SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 200, 100 }; // Điều chỉnh kích thước
+    SDL_RenderCopy(renderer, gameOverTexture, NULL, &dest);
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -141,37 +199,59 @@ int main(int argc, char* argv[])
     SDL_Renderer* renderer = createRenderer(window);
 
     SDL_Texture* background = loadTexture("backgr.jpg", renderer);
+    pipeTexture = loadTexture("pipe.png", renderer);
+    birdTexture = loadTexture("bird.png", renderer);
+    gameOverTexture = loadTexture("gameover.png", renderer);
 
-    // Thêm ống nước ban đầu
     addPipe();
-
     bool running = true;
+    bool gameOver = false; // Thêm biến kiểm tra game over
     SDL_Event event;
 
-    while (running) {
-        // Xử lý sự kiện
+    while (running)
+    {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
+            else if (event.type == SDL_KEYDOWN) {
+                if (!gameOver && event.key.keysym.sym == SDLK_SPACE) {
+                    bird.velocity = -8; // Chim nhảy lên
+                }
+                else if (gameOver) { // Nếu game over, nhấn phím bất kỳ để thoát
+                    running = false;
+                }
+            }
         }
 
-        // Cập nhật ống nước
-        updatePipes();
+        if (!gameOver) {
+            updateBird();   // Cập nhật chuyển động của chim
+            updatePipes();
 
-        // Vẽ màn hình nền
+            for (auto &pipe : pipes) {
+                if (checkCollision(bird, pipe)) {
+                    gameOver = true; // Khi va chạm, chỉ báo game over
+                }
+            }
+        }
+
         SDL_RenderCopy(renderer, background, NULL, NULL);
-
-        // Vẽ ống nước
         renderPipes(renderer);
+        drawBird(renderer);
+
+        if (gameOver) {
+            drawGameOver(renderer); // Hiển thị GAME OVER
+        }
 
         SDL_RenderPresent(renderer);
         SDL_Delay(20);
     }
 
+    SDL_DestroyTexture(gameOverTexture);
+    SDL_DestroyTexture(birdTexture);
+    SDL_DestroyTexture(pipeTexture);
     SDL_DestroyTexture(background);
     quitSDL(window, renderer);
 
     return 0;
 }
-//hihi
