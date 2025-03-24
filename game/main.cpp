@@ -3,6 +3,8 @@
 #include <SDL_image.h>
 #include <vector>
 #include <cstdlib> // Cho rand()
+#include <SDL_ttf.h> //thư viện hỗ trợ hiển thị văn bản
+
 
 using namespace std;
 
@@ -192,11 +194,43 @@ void drawGameOver(SDL_Renderer* renderer) {
     SDL_RenderCopy(renderer, gameOverTexture, NULL, &dest);
 }
 
+int score = 0;
+TTF_Font* font = nullptr;
+SDL_Color textColor = {255, 255, 255}; // Màu trắng
+SDL_Texture* scoreTexture = nullptr;
 
-int main(int argc, char* argv[])
-{
+// Khởi tạo SDL_ttf
+void initFont() {
+    if (TTF_Init() == -1) {
+        logErrorAndExit("TTF_Init", TTF_GetError());
+    }
+    font = TTF_OpenFont("arial.ttf", 28); // Đổi thành font bạn có
+    if (!font) {
+        logErrorAndExit("TTF_OpenFont", TTF_GetError());
+    }
+}
+
+// Tạo texture từ điểm số
+SDL_Texture* renderText(const string& text, SDL_Renderer* renderer) {
+    SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    return texture;
+}
+
+// Hiển thị điểm số lên màn hình
+void drawScore(SDL_Renderer* renderer) {
+    if (scoreTexture) SDL_DestroyTexture(scoreTexture);
+    scoreTexture = renderText("Score: " + to_string(score), renderer);
+
+    SDL_Rect dest = {20, 20, 100, 50}; // Vị trí điểm số
+    SDL_RenderCopy(renderer, scoreTexture, NULL, &dest);
+}
+
+int main(int argc, char* argv[]) {
     SDL_Window* window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     SDL_Renderer* renderer = createRenderer(window);
+    initFont(); // Khởi tạo font chữ
 
     SDL_Texture* background = loadTexture("backgr.jpg", renderer);
     pipeTexture = loadTexture("pipe.png", renderer);
@@ -205,11 +239,10 @@ int main(int argc, char* argv[])
 
     addPipe();
     bool running = true;
-    bool gameOver = false; // Thêm biến kiểm tra game over
+    bool gameOver = false;
     SDL_Event event;
 
-    while (running)
-    {
+    while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
@@ -218,19 +251,23 @@ int main(int argc, char* argv[])
                 if (!gameOver && event.key.keysym.sym == SDLK_SPACE) {
                     bird.velocity = -8; // Chim nhảy lên
                 }
-                else if (gameOver) { // Nếu game over, nhấn phím bất kỳ để thoát
+                else if (gameOver) {
                     running = false;
                 }
             }
         }
 
         if (!gameOver) {
-            updateBird();   // Cập nhật chuyển động của chim
+            updateBird();
             updatePipes();
 
             for (auto &pipe : pipes) {
                 if (checkCollision(bird, pipe)) {
-                    gameOver = true; // Khi va chạm, chỉ báo game over
+                    gameOver = true;
+                }
+                // Kiểm tra xem chim đã vượt qua ống chưa
+                if (bird.x > pipe.x + PIPE_WIDTH && !gameOver) {
+                    score++;
                 }
             }
         }
@@ -238,14 +275,20 @@ int main(int argc, char* argv[])
         SDL_RenderCopy(renderer, background, NULL, NULL);
         renderPipes(renderer);
         drawBird(renderer);
+        drawScore(renderer); // Hiển thị điểm số
 
         if (gameOver) {
-            drawGameOver(renderer); // Hiển thị GAME OVER
+            drawGameOver(renderer);
         }
 
         SDL_RenderPresent(renderer);
         SDL_Delay(20);
     }
+
+    // Giải phóng bộ nhớ
+    SDL_DestroyTexture(scoreTexture);
+    TTF_CloseFont(font);
+    TTF_Quit();
 
     SDL_DestroyTexture(gameOverTexture);
     SDL_DestroyTexture(birdTexture);
