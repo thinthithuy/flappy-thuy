@@ -1,11 +1,13 @@
 # depslib dependency file v1.0
-1742809551 source:d:\code\ltnc\game\main.cpp
+1742829764 source:d:\code\ltnc\game\main.cpp
 	<iostream>
 	<SDL.h>
 	<SDL_image.h>
 	<vector>
 	<cstdlib>
 	<SDL_ttf.h>
+	<fstream>
+	<cmath>
 
 1742719938 d:\code\ltnc\game\window.h
 	<SDL.h>
