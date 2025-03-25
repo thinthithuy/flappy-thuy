@@ -20,6 +20,7 @@ const int PIPE_SPEED = 3;
 // Cấu trúc lưu thông tin ống nước
 struct Pipe {
     int x, height;
+    bool scored = false;
 };
 
 // Danh sách ống nước
@@ -238,9 +239,9 @@ void renderText(SDL_Renderer* renderer, const std::string& text, int x, int y) {
 
 void updateScore(bool gameOver) {
     for (auto &pipe : pipes) {
-        if (!gameOver && pipe.x + PIPE_WIDTH < bird.x) {
+        if (!gameOver && pipe.x + PIPE_WIDTH < bird.x && pipe.scored == false) {
             score++;
-            //pipe.x = SCREEN_WIDTH + 100; // Đảm bảo không tính trùng
+            pipe.scored = true;
         }
     }
 }
