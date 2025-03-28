@@ -6,6 +6,8 @@
 #include <SDL_ttf.h>
 #include <fstream> // Đọc/ghi file
 #include <cmath>
+#include "audiomanager.h"
+#include "game_speed.h"
 
 using namespace std;
 
@@ -134,6 +136,27 @@ void updatePipes()
         addPipe();
     }
 }
+/*void updatePipes()
+{
+    for (auto &pipe : pipes)
+    {
+        pipe.x -= gameSpeed.getSpeed(); // Sử dụng tốc độ hiện tại
+    }
+
+    // Xóa ống nước khi nó ra khỏi màn hình
+    if (!pipes.empty() && pipes[0].x < -PIPE_WIDTH)
+    {
+        pipes.erase(pipes.begin());
+        gameSpeed.incrementColumn(); // Cập nhật tốc độ khi vượt qua một cột
+    }
+
+    // Thêm ống mới nếu cần
+    if (pipes.empty() || pipes.back().x < SCREEN_WIDTH - 250)
+    {
+        addPipe();
+    }
+}*/
+
 
 // Vẽ tất cả ống nước lên màn hình
 void renderPipes(SDL_Renderer* renderer)
@@ -250,6 +273,20 @@ int main(int argc, char* argv[]) {
     // Khởi tạo SDL, cửa sổ, renderer
     SDL_Window* window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     SDL_Renderer* renderer = createRenderer(window);
+    SDL_Init(SDL_INIT_EVERYTHING);
+     // Khởi tạo hệ thống âm thanh
+    AudioManager& audio = AudioManager::getInstance();
+    if (!audio.init()) {
+        return -1;
+    }
+
+    // Load âm thanh
+    audio.loadMusic("background", "background.mp3");
+    audio.loadSound("flap", "flap.mp3");
+    audio.loadSound("hit", "hit.mp3");
+
+    // Phát nhạc nền
+    audio.playMusic("background");
 
     // Tải hình ảnh
     SDL_Texture* background = loadTexture("backgr.jpg", renderer);
@@ -274,6 +311,8 @@ int main(int argc, char* argv[]) {
     bool gameStarted = false; // Trò chơi chưa bắt đầu
     SDL_Event event;
 
+    GameSpeed gameSpeed;  // Tạo đối tượng quản lý tốc độ
+
     while (running) {
         // Xử lý sự kiện
         while (SDL_PollEvent(&event)) {
@@ -287,8 +326,11 @@ int main(int argc, char* argv[]) {
                     }
                     if (!gameOver) {
                         bird.velocity = -8; // Chim nhảy lên
+                        audio.playSound("flap");
                     } else {
     // Nếu game over, nhấn SPACE để chơi lại
+    gameSpeed.reset();
+
     gameOver = false;
     gameStarted = false;
     score = 0;
@@ -309,6 +351,7 @@ int main(int argc, char* argv[]) {
                 // Kiểm tra va chạm
                 for (auto &pipe : pipes) {
                     if (checkCollision(bird, pipe)) {
+                        audio.playSound("hit");
                         gameOver = true;
                     }
                 }
@@ -326,7 +369,7 @@ int main(int argc, char* argv[]) {
 
         // Nếu chưa bắt đầu, hiển thị hướng dẫn
         if (!gameStarted) {
-            renderText(renderer, "Press SPACE to start!", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50);
+            renderText(renderer, "Press SPACE to start!", SCREEN_WIDTH / 2 - 125, SCREEN_HEIGHT / 2 - 50);
         }
 
         if (gameOver) {
@@ -348,6 +391,8 @@ int main(int argc, char* argv[]) {
     SDL_DestroyTexture(background);
     TTF_CloseFont(font);
     TTF_Quit();
+    audio.close();
+    SDL_Quit();
     quitSDL(window, renderer);
 
     return 0;

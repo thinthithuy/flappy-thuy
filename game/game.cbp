@@ -32,6 +32,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="audiomanager.cpp" />
+		<Unit filename="audiomanager.h" />
+		<Unit filename="game_speed.cpp" />
+		<Unit filename="game_speed.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
