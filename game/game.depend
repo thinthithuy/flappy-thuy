@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1743181499 source:d:\code\ltnc\game\main.cpp
+1743260394 source:d:\code\ltnc\game\main.cpp
 	<iostream>
 	<SDL.h>
 	<SDL_image.h>
@@ -9,7 +9,7 @@
 	<fstream>
 	<cmath>
 	"audiomanager.h"
-	"game_speed.h"
+	"difficulty.h"
 
 1742719938 d:\code\ltnc\game\window.h
 	<SDL.h>
@@ -29,14 +29,18 @@
 	<SDL.h>
 	<iostream>
 
-1743170009 d:\code\ltnc\game\audiomanager.h
+1743260394 d:\code\ltnc\game\audiomanager.h
 	<SDL_mixer.h>
 	<string>
 	<map>
 
-1743181389 source:d:\code\ltnc\game\game_speed.cpp
+1743255127 source:d:\code\ltnc\game\game_speed.cpp
 	"game_speed.h"
-	<iostream>
 
-1743181640 d:\code\ltnc\game\game_speed.h
+1743255127 d:\code\ltnc\game\game_speed.h
+
+1743257775 source:d:\code\ltnc\game\difficulty.cpp
+	"Difficulty.h"
+
+1743256096 d:\code\ltnc\game\difficulty.h
 

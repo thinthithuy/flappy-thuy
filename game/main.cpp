@@ -4,10 +4,10 @@
 #include <vector>
 #include <cstdlib> // Cho rand()
 #include <SDL_ttf.h>
-#include <fstream> // Đọc/ghi file
+#include <fstream>
 #include <cmath>
 #include "audiomanager.h"
-#include "game_speed.h"
+#include "difficulty.h"
 
 using namespace std;
 
@@ -20,7 +20,8 @@ const int PIPE_GAP = 150;
 const int PIPE_SPEED = 3;
 
 // Cấu trúc lưu thông tin ống nước
-struct Pipe {
+struct Pipe
+{
     int x, height;
     bool scored = false;
 };
@@ -70,9 +71,10 @@ void quitSDL (SDL_Window* window, SDL_Renderer* renderer)
 void waitUntilKeyPressed()
 {
     SDL_Event e;
-    while (true) {
+    while (true)
+    {
         if ( SDL_PollEvent(&e) != 0 &&
-             (e.type == SDL_KEYDOWN || e.type == SDL_QUIT) )
+           (e.type == SDL_KEYDOWN || e.type == SDL_QUIT) )
             return;
         SDL_Delay(100);
     }
@@ -97,9 +99,11 @@ SDL_Texture *loadTexture(const char *filename, SDL_Renderer* renderer)
 
     return texture;
 }
+
 SDL_Texture* pipeTexture = nullptr;
 
-void drawPipe(int x, int height, SDL_Renderer* renderer) {
+void drawPipe(int x, int height, SDL_Renderer* renderer)
+{
     // Cột trên (lộn ngược)
     SDL_Rect topPipe = {x, 0, PIPE_WIDTH, height};
     SDL_Rect srcRect = {0, 0, 80, 400}; // Điều chỉnh theo ảnh thực tế
@@ -111,7 +115,8 @@ void drawPipe(int x, int height, SDL_Renderer* renderer) {
 }
 
 // Thêm ống nước mới
-void addPipe() {
+void addPipe()
+{
     int height = rand() % (SCREEN_HEIGHT - PIPE_GAP - 100) + 50;
     pipes.push_back({SCREEN_WIDTH, height});
 }
@@ -121,7 +126,7 @@ void updatePipes()
 {
     for (auto &pipe : pipes)
     {
-        pipe.x -= PIPE_SPEED; // Di chuyển sang trái
+        pipe.x -= Difficulty::pipeSpeed;
     }
 
     // Xóa ống nước khi nó ra khỏi màn hình
@@ -136,27 +141,6 @@ void updatePipes()
         addPipe();
     }
 }
-/*void updatePipes()
-{
-    for (auto &pipe : pipes)
-    {
-        pipe.x -= gameSpeed.getSpeed(); // Sử dụng tốc độ hiện tại
-    }
-
-    // Xóa ống nước khi nó ra khỏi màn hình
-    if (!pipes.empty() && pipes[0].x < -PIPE_WIDTH)
-    {
-        pipes.erase(pipes.begin());
-        gameSpeed.incrementColumn(); // Cập nhật tốc độ khi vượt qua một cột
-    }
-
-    // Thêm ống mới nếu cần
-    if (pipes.empty() || pipes.back().x < SCREEN_WIDTH - 250)
-    {
-        addPipe();
-    }
-}*/
-
 
 // Vẽ tất cả ống nước lên màn hình
 void renderPipes(SDL_Renderer* renderer)
@@ -167,7 +151,8 @@ void renderPipes(SDL_Renderer* renderer)
     }
 }
 
-struct Bird {
+struct Bird
+{
     float x, y;       // Vị trí của chim
     float velocity;   // Vận tốc rơi
     float gravity;    // Trọng lực
@@ -176,18 +161,23 @@ struct Bird {
 SDL_Texture* birdTexture = nullptr;
 Bird bird = {100, SCREEN_HEIGHT / 2, 0, 0.5f}; // Vị trí ban đầu của chim
 
-void drawBird(SDL_Renderer* renderer) {
+void drawBird(SDL_Renderer* renderer)
+{
     SDL_Rect dest = { (int)bird.x, (int)bird.y, 50, 50 }; // Kích thước chim
     SDL_RenderCopy(renderer, birdTexture, NULL, &dest);
 }
 
-void updateBird(bool gameStarted) {
-    if (!gameStarted) {
+void updateBird(bool gameStarted)
+{
+    if (!gameStarted)
+    {
         // Khi chưa bắt đầu, cho chim dao động nhẹ (lên xuống)
         static float time = 0;
         bird.y = (SCREEN_HEIGHT / 2) + sin(time) * 10; // Dao động quanh vị trí ban đầu
         time += 0.1f;
-    } else {
+    }
+    else
+    {
         // Khi game đã bắt đầu, chim rơi tự nhiên
         bird.velocity += bird.gravity;
         bird.y += bird.velocity;
@@ -199,23 +189,27 @@ void updateBird(bool gameStarted) {
 }
 
 
-bool checkCollision(const Bird& bird, const Pipe& pipe) {
+bool checkCollision(const Bird& bird, const Pipe& pipe)
+{
     SDL_Rect birdRect = {(int)bird.x, (int)bird.y, 50, 50}; // Hình chữ nhật của chim
     SDL_Rect topPipeRect = {pipe.x, 0, PIPE_WIDTH, pipe.height}; // Ống trên
     SDL_Rect bottomPipeRect = {pipe.x, pipe.height + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT - pipe.height - PIPE_GAP}; // Ống dưới
 
     // Kiểm tra va chạm với ống trên
-    if (SDL_HasIntersection(&birdRect, &topPipeRect)) {
+    if (SDL_HasIntersection(&birdRect, &topPipeRect))
+    {
         return true;
     }
 
     // Kiểm tra va chạm với ống dưới
-    if (SDL_HasIntersection(&birdRect, &bottomPipeRect)) {
+    if (SDL_HasIntersection(&birdRect, &bottomPipeRect))
+    {
         return true;
     }
 
     // Kiểm tra nếu chim chạm đất
-    if (bird.y >= SCREEN_HEIGHT - 50) { // 50 là chiều cao chim
+    if (bird.y >= SCREEN_HEIGHT - 50)
+    { // 50 là chiều cao chim
         return true;
     }
 
@@ -223,7 +217,8 @@ bool checkCollision(const Bird& bird, const Pipe& pipe) {
 }
 
 SDL_Texture* gameOverTexture = nullptr;
-void drawGameOver(SDL_Renderer* renderer) {
+void drawGameOver(SDL_Renderer* renderer)
+{
     SDL_Rect dest = { SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 200, 100 }; // Điều chỉnh kích thước
     SDL_RenderCopy(renderer, gameOverTexture, NULL, &dest);
 }
@@ -233,23 +228,28 @@ int highScore = 0;
 TTF_Font* font = nullptr;
 SDL_Color whiteColor = {255, 255, 255};
 
-void loadHighScore() {
-    std::ifstream file("highscore.txt");
-    if (file.is_open()) {
+void loadHighScore()
+{
+    ifstream file("highscore.txt");
+    if (file.is_open())
+    {
         file >> highScore;
         file.close();
     }
 }
 
-void saveHighScore() {
-    std::ofstream file("highscore.txt");
-    if (file.is_open()) {
+void saveHighScore()
+{
+    ofstream file("highscore.txt");
+    if (file.is_open())
+    {
         file << highScore;
         file.close();
     }
 }
 
-void renderText(SDL_Renderer* renderer, const std::string& text, int x, int y) {
+void renderText(SDL_Renderer* renderer, const string& text, int x, int y)
+{
     SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), whiteColor);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
@@ -260,23 +260,29 @@ void renderText(SDL_Renderer* renderer, const std::string& text, int x, int y) {
     SDL_DestroyTexture(texture);
 }
 
-void updateScore(bool gameOver) {
-    for (auto &pipe : pipes) {
-        if (!gameOver && pipe.x + PIPE_WIDTH < bird.x && pipe.scored == false) {
+void updateScore(bool gameOver)
+{
+    for (auto &pipe : pipes)
+    {
+        if (!gameOver && pipe.x + PIPE_WIDTH < bird.x && pipe.scored == false)
+        {
             score++;
             pipe.scored = true;
         }
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     // Khởi tạo SDL, cửa sổ, renderer
     SDL_Window* window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     SDL_Renderer* renderer = createRenderer(window);
     SDL_Init(SDL_INIT_EVERYTHING);
+
      // Khởi tạo hệ thống âm thanh
     AudioManager& audio = AudioManager::getInstance();
-    if (!audio.init()) {
+    if (!audio.init())
+    {
         return -1;
     }
 
@@ -297,7 +303,8 @@ int main(int argc, char* argv[]) {
     // Khởi tạo font chữ để hiển thị điểm số
     TTF_Init();
     font = TTF_OpenFont("arial.ttf", 28);
-    if (!font) {
+    if (!font)
+    {
         SDL_Log("Failed to load font: %s", TTF_GetError());
         return -1;
     }
@@ -311,46 +318,76 @@ int main(int argc, char* argv[]) {
     bool gameStarted = false; // Trò chơi chưa bắt đầu
     SDL_Event event;
 
-    GameSpeed gameSpeed;  // Tạo đối tượng quản lý tốc độ
+    // Trạng thái tạm dừng
+    bool paused = false;
 
-    while (running) {
+    while (running)
+    {
         // Xử lý sự kiện
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+            {
                 running = false;
-            } else if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_SPACE) {
-                    if (!gameStarted) {
+            }
+            else if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_SPACE)
+                {
+                    if (!gameStarted)
+                    {
                         gameStarted = true;  // Bắt đầu trò chơi khi nhấn SPACE lần đầu
                         addPipe(); // Thêm ống nước đầu tiên
                     }
-                    if (!gameOver) {
+                    if (!gameOver)
+                    {
                         bird.velocity = -8; // Chim nhảy lên
                         audio.playSound("flap");
-                    } else {
-    // Nếu game over, nhấn SPACE để chơi lại
-    gameSpeed.reset();
-
-    gameOver = false;
-    gameStarted = false;
-    score = 0;
-    bird = {100, SCREEN_HEIGHT / 2, 0, 0.5f}; // Reset vị trí chim
-    pipes.clear(); // Xóa toàn bộ ống nước
-}
+                    }
+                    else
+                    {
+                        // Nếu game over, nhấn SPACE để chơi lại
+                        gameOver = false;
+                        gameStarted = false;
+                        score = 0;
+                        bird = {100, SCREEN_HEIGHT / 2, 0, 0.5f}; // Reset vị trí chim
+                        pipes.clear(); // Xóa toàn bộ ống nước
+                    }
+                }
+                // Thoát game khi nhấn ENTER
+                else if (event.key.keysym.sym == SDLK_RETURN)
+                {
+                    running = false;
+                }
+                // Tạm dừng khi nhấn P
+                else if (event.key.keysym.sym == SDLK_p)
+                {
+                    paused = !paused;
                 }
             }
         }
 
-        if (!gameOver) {
-            updateBird(gameStarted);  // ✅ Chim vẫn bay trước khi bắt đầu game
+        if (!gameOver && !paused)
+        {
+             // Chỉ cập nhật khi không game over và không tạm dừng
+            updateBird(gameStarted);
 
-            if (gameStarted) {
+            if (gameStarted)
+            {
+                // Cập nhật độ khó trước khi cập nhật ống nước
+                Difficulty::updateDifficulty(score);
+
+                updatePipes(); // Ống chỉ xuất hiện sau khi bắt đầu
+                updateScore(gameOver);
+
                 updatePipes(); // Ống chỉ xuất hiện sau khi bắt đầu
                 updateScore(gameOver);
 
                 // Kiểm tra va chạm
-                for (auto &pipe : pipes) {
-                    if (checkCollision(bird, pipe)) {
+                for (auto &pipe : pipes)
+                {
+                    if (checkCollision(bird, pipe))
+                    {
                         audio.playSound("hit");
                         gameOver = true;
                     }
@@ -368,13 +405,22 @@ int main(int argc, char* argv[]) {
         renderText(renderer, "High Score: " + std::to_string(highScore), 20, 50);
 
         // Nếu chưa bắt đầu, hiển thị hướng dẫn
-        if (!gameStarted) {
+        if (!gameStarted)
+        {
             renderText(renderer, "Press SPACE to start!", SCREEN_WIDTH / 2 - 125, SCREEN_HEIGHT / 2 - 50);
         }
 
-        if (gameOver) {
+        if (paused)
+        {
+            renderText(renderer, "PAUSED - Press P to Resume", SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2);
+        }
+
+        if (gameOver)
+        {
+            Difficulty::pipeSpeed = 2;
             drawGameOver(renderer);
-            if (score > highScore) {
+            if (score > highScore)
+            {
                 highScore = score;
                 saveHighScore();
             }
@@ -392,7 +438,6 @@ int main(int argc, char* argv[]) {
     TTF_CloseFont(font);
     TTF_Quit();
     audio.close();
-    SDL_Quit();
     quitSDL(window, renderer);
 
     return 0;

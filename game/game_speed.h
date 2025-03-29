@@ -1,20 +1,18 @@
 #ifndef GAME_SPEED_H
 #define GAME_SPEED_H
 
-class GameSpeed {
+class GameSpeedManager {
 private:
-    float speed;  // Tốc độ hiện tại
-    int columnCount; // Số cột đã vượt qua
-    const int COLUMNS_PER_SPEED_INCREASE = 1; // Số cột để tăng tốc
-    const float SPEED_INCREMENT = 0.5f; // Mức tăng tốc độ mỗi 15 cột
+    float speedMultiplier; // Hệ số tốc độ
+    int lastScoreCheckpoint; // Mốc điểm số để tăng tốc độ
+    const float speedIncrement = 0.1f; // Mức tăng mỗi lần đạt điểm
+    const int scoreThreshold = 5; // Số điểm cần để tăng tốc
 
 public:
-    GameSpeed();  // Constructor
-    void updateSpeed(); // Cập nhật tốc độ
-    float getSpeed() const; // Lấy tốc độ hiện tại
-    void incrementColumn(); // Tăng số lượng cột đã vượt qua
-    void reset(); // Reset tốc độ khi chơi lại
+    GameSpeedManager(); // Constructor
+
+    void updateSpeed(int score); // Cập nhật tốc độ dựa trên điểm số
+    float getSpeedMultiplier() const; // Lấy giá trị tốc độ hiện tại
 };
 
 #endif // GAME_SPEED_H
-

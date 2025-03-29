@@ -1,31 +1,17 @@
 #include "game_speed.h"
-#include <iostream>
 
-// Constructor
-GameSpeed::GameSpeed() : speed(3.0f), columnCount(0) {}
+GameSpeedManager::GameSpeedManager() {
+    speedMultiplier = 1.0f; // Bắt đầu với tốc độ bình thường
+    lastScoreCheckpoint = 0; // Ban đầu chưa có điểm số
+}
 
-// Cập nhật tốc độ nếu đã vượt qua 15 cột
-void GameSpeed::updateSpeed() {
-    if (columnCount > 0 && columnCount % COLUMNS_PER_SPEED_INCREASE == 0) {
-        speed += SPEED_INCREMENT;
-        std::cout << "Tốc độ hiện tại: " << speed << std::endl;
+void GameSpeedManager::updateSpeed(int score) {
+    if (score >= lastScoreCheckpoint + scoreThreshold) {
+        speedMultiplier += speedIncrement; // Tăng tốc độ
+        lastScoreCheckpoint = score; // Cập nhật mốc điểm số
     }
 }
 
-// Trả về tốc độ hiện tại
-float GameSpeed::getSpeed() const {
-    return speed;
+float GameSpeedManager::getSpeedMultiplier() const {
+    return speedMultiplier;
 }
-
-// Tăng số lượng cột đã vượt qua
-void GameSpeed::incrementColumn() {
-    columnCount++;
-    updateSpeed();
-}
-
-// Reset tốc độ khi chơi lại
-void GameSpeed::reset() {
-    speed = 3.0f;
-    columnCount = 0;
-}
-
