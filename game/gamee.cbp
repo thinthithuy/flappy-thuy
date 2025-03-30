@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="game" />
+		<Option title="gamee" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/game" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/gamee" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -16,7 +16,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/game" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/gamee" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -32,12 +32,12 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="Bird.cpp" />
+		<Unit filename="Bird.h" />
 		<Unit filename="audiomanager.cpp" />
 		<Unit filename="audiomanager.h" />
-		<Unit filename="difficulty.cpp" />
-		<Unit filename="difficulty.h" />
-		<Unit filename="game_speed.cpp" />
-		<Unit filename="game_speed.h" />
+		<Unit filename="background.cpp" />
+		<Unit filename="background.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />

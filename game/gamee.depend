@@ -1,0 +1,45 @@
+# depslib dependency file v1.0
+1743372703 source:d:\code\ltnc\gamee\audiomanager.cpp
+	"AudioManager.h"
+	<SDL.h>
+	<iostream>
+
+1743368643 d:\code\ltnc\gamee\audiomanager.h
+	<SDL_mixer.h>
+	<string>
+	<map>
+
+1743372434 source:d:\code\ltnc\gamee\background.cpp
+	"background.h"
+	"Bird.h"
+
+1743369179 d:\code\ltnc\gamee\background.h
+	<SDL.h>
+	<SDL_image.h>
+	<iostream>
+	<vector>
+	<cmath>
+	<cstdlib>
+	"Bird.h"
+	"audiomanager.h"
+
+1743372434 d:\code\ltnc\gamee\bird.h
+	<SDL.h>
+	<SDL_image.h>
+	<cmath>
+
+1743372434 source:d:\code\ltnc\gamee\bird.cpp
+	"Bird.h"
+
+1743373071 source:d:\code\ltnc\gamee\main.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	<vector>
+	<SDL_ttf.h>
+	<fstream>
+	"audiomanager.h"
+	"Bird.h"
+	"background.h"
+	<cmath>
+
