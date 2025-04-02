@@ -14,7 +14,7 @@ bool AudioManager::init()
 {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
     {
-        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << endl;
         return false;
     }
     return true;
@@ -37,12 +37,12 @@ void AudioManager::close()
 }
 
 // Load nhạc nền
-bool AudioManager::loadMusic(const std::string& id, const std::string& filename)
+bool AudioManager::loadMusic(const string& id, const string& filename)
 {
     Mix_Music* music = Mix_LoadMUS(filename.c_str());
     if (!music)
     {
-        std::cerr << "Failed to load music " << filename << " Error: " << Mix_GetError() << std::endl;
+        cerr << "Failed to load music " << filename << " Error: " << Mix_GetError() << endl;
         return false;
     }
     musicMap[id] = music;
@@ -50,12 +50,12 @@ bool AudioManager::loadMusic(const std::string& id, const std::string& filename)
 }
 
 // Load hiệu ứng âm thanh
-bool AudioManager::loadSound(const std::string& id, const std::string& filename)
+bool AudioManager::loadSound(const string& id, const string& filename)
 {
     Mix_Chunk* sound = Mix_LoadWAV(filename.c_str());
     if (!sound)
     {
-        std::cerr << "Failed to load sound " << filename << " Error: " << Mix_GetError() << std::endl;
+        cerr << "Failed to load sound " << filename << " Error: " << Mix_GetError() << endl;
         return false;
     }
     soundMap[id] = sound;
@@ -63,34 +63,16 @@ bool AudioManager::loadSound(const std::string& id, const std::string& filename)
 }
 
 // Phát nhạc nền
-void AudioManager::playMusic(const std::string& id, int loops)
+void AudioManager::playMusic(const string& id, int loops)
 {
     if (musicMap.find(id) != musicMap.end())
     {
         Mix_PlayMusic(musicMap[id], loops);
     }
 }
-/*
-// Dừng nhạc nền
-void AudioManager::stopMusic()
-{
-    Mix_HaltMusic();
-}
 
-// Tạm dừng nhạc nền
-void AudioManager::pauseMusic()
-{
-    Mix_PauseMusic();
-}
-
-// Tiếp tục phát nhạc
-void AudioManager::resumeMusic()
-{
-    Mix_ResumeMusic();
-}
-*/
 // Phát hiệu ứng âm thanh
-void AudioManager::playSound(const std::string& id, int loops)
+void AudioManager::playSound(const string& id, int loops)
 {
     if (soundMap.find(id) != soundMap.end())
     {

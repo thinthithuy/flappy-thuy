@@ -12,7 +12,7 @@ void Background::Init_Background(SDL_Renderer* renderer)
 {
 
     pipeTexture = loadTexture("pipe.png", renderer);
-    birdTexture = loadTexture("bird2.png", renderer);
+    birdTexture = loadTexture("bird.png", renderer);
     background = loadTexture("backgr.jpg", renderer);
     gameOverTexture = loadTexture("gameover.png", renderer);
 }

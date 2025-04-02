@@ -9,7 +9,7 @@ using namespace std;
 class AudioManager
 {
 public:
-    static AudioManager& getInstance(); // Singleton
+    static AudioManager& getInstance();
 
     bool init();  // Khởi tạo SDL_mixer
     void close(); // Giải phóng tài nguyên
@@ -25,7 +25,7 @@ public:
     void playSound(const string& id, int loops = 0);
 
 private:
-    AudioManager() {} // Constructor private (Singleton)
+    AudioManager() {}
     map<string, Mix_Music*> musicMap;
     map<string, Mix_Chunk*> soundMap;
 };

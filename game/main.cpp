@@ -16,9 +16,6 @@ const char* WINDOW_TITLE = "flappy thuy";
 
 
 Background background;
-// Cấu trúc lưu thông tin ống nước
-
-// Danh sách ống nước
 
 void logErrorAndExit(const char* msg, const char* error)
 {

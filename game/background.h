@@ -37,6 +37,7 @@ public:
     {
        pipes.clear();
     }
+
     bool checkCollision(Bird& bird, const Pipe& pipe);
     void Init_Background(SDL_Renderer* renderer);
     vector<Pipe> pipes;
@@ -71,5 +72,5 @@ public:
     }
 };
 
-#endif // BACKGROUND
+#endif
 

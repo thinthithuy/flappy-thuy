@@ -30,5 +30,5 @@ public:
     void drawBird(SDL_Renderer* renderer,SDL_Texture* texture);
     void updateBird(bool gameStarted);
 };
-#endif // BIRD
+#endif
 
