@@ -106,7 +106,7 @@ bool Background::checkCollision(Bird& bird, const Pipe& pipe)
 }
 void Background::render_background(SDL_Renderer* render,Bird& bird)
 {
-    SDL_Rect drs = {SCREEN_WIDTH/2,SCREEN_HEIGHT/2,SCREEN_WIDTH,SCREEN_HEIGHT};
+    //SDL_Rect drs = {SCREEN_WIDTH/2,SCREEN_HEIGHT/2,SCREEN_WIDTH,SCREEN_HEIGHT};
     SDL_RenderCopy(render, background, NULL, NULL);
     renderPipes(render);
     bird.drawBird(render,birdTexture);
