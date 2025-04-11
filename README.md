@@ -21,6 +21,7 @@ CÁCH CHƠI:
 -Nhấn phím Enter để thoát khỏi trò chơi
 
 CÁC NGUỒN THAM KHẢO:
+-Ảnh nền: https://www.pinterest.com/pin/71916925294265440/
 -Âm thanh nền: https://pixabay.com/vi/music/lac-quan-fun-upbeat-background-music-311769/
 -Âm thanh va chạm: https://tiengdong.com/tieng-ding-hoat-hinh-vui-nhon
 -Âm thanh chim bay: https://tiengdong.com/am-thanh-nhay-qua-buoc-qua
