@@ -25,9 +25,9 @@ void Bird::updateBird(bool gameStarted)
     if (!gameStarted)
     {
         // Khi chưa bắt đầu, cho chim dao động nhẹ (lên xuống)
-        static float time = 0;
+        static float time = 0; // giữ lại giá trị của biến giữa các lần gọi hàm, thay vì khởi tạo lại từ đầu mỗi khi hàm được gọi.
         y = (SCREEN_HEIGHT / 2) + sin(time) * 10; // Dao động quanh vị trí ban đầu
-        time += 0.1f;
+        time += 0.1f;//tăng thời gian để sin() thay đổi → tạo hiệu ứng động.
     }
     else
     {
